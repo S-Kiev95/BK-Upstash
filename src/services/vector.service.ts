@@ -11,6 +11,7 @@ const openai = new OpenAI({
 
 type Metadata = {
     id: string,
+    nombre: string,
     text: string
 }
 
@@ -54,6 +55,7 @@ export async function splitTextAndUpsert(id: string, nombre: string, descripcion
                 vector: embedding,
                 metadata: { 
                     id: id,
+                    nombre: nombre,
                     text: chunks[i] 
                 },
             }]);

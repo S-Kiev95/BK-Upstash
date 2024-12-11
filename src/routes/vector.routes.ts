@@ -37,4 +37,46 @@ router.post('/query', async (req, res) => {
     }
 });
 
+// Route to query multiple products
+router.post('/queryMultiple', async (req, res) => {
+    try {
+        const { productos } = req.body;
+        
+        if (!Array.isArray(productos)) {
+            return res.status(400).json({ error: 'productos must be an array' });
+        }
+
+        const results = [];
+        const notFound = [];
+        
+        for (const producto of productos) {
+            if (!producto.nombreProducto || typeof producto.cantidad !== 'number') {
+                return res.status(400).json({ 
+                    error: 'Each product must have nombreProducto (string) and cantidad (number)' 
+                });
+            }
+
+            const queryResult = await queryByText(producto.nombreProducto);
+            
+            if (queryResult && queryResult.length > 0) {
+                results.push({
+                    id: queryResult[0]?.metadata?.id,
+                    nombre: queryResult[0]?.metadata?.text,
+                    cantidad: producto.cantidad
+                });
+            } else {
+                notFound.push(producto.nombreProducto);
+            }
+        }
+
+        res.json({
+            found: results,
+            notFound: notFound
+        });
+    } catch (error) {
+        console.error('Error in queryMultiple route:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 export default router;
