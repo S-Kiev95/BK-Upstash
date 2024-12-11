@@ -48,6 +48,7 @@ router.post('/queryMultiple', async (req, res) => {
 
         const results = [];
         const notFound = [];
+        let total = 0;
         
         for (const producto of productos) {
             if (!producto.nombreProducto || typeof producto.cantidad !== 'number') {
@@ -59,11 +60,21 @@ router.post('/queryMultiple', async (req, res) => {
             const queryResult = await queryByText(producto.nombreProducto);
             
             if (queryResult && queryResult.length > 0) {
-                results.push({
-                    id: queryResult[0]?.metadata?.id,
-                    nombre: queryResult[0]?.metadata?.text,
-                    cantidad: producto.cantidad
-                });
+                const firstResult = queryResult[0];
+                if (firstResult?.metadata?.costo != null && !isNaN(firstResult.metadata.costo)) {
+                    const subtotal = firstResult.metadata.costo * producto.cantidad;
+                    total += subtotal;
+                    
+                    results.push({
+                        id: firstResult.metadata.id,
+                        nombre: firstResult.metadata.text,
+                        cantidad: producto.cantidad,
+                        costo: firstResult.metadata.costo,
+                        subtotal: subtotal
+                    });
+                } else {
+                    console.warn(`No valid cost found for product: ${producto.nombreProducto}`);
+                }
             } else {
                 notFound.push(producto.nombreProducto);
             }
@@ -71,7 +82,8 @@ router.post('/queryMultiple', async (req, res) => {
 
         res.json({
             found: results,
-            notFound: notFound
+            notFound: notFound,
+            total: total
         });
     } catch (error) {
         console.error('Error in queryMultiple route:', error);
