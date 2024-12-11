@@ -43,7 +43,7 @@ async function generateEmbeddings(text: string) {
 }
 
 // Function to split text into chunks, generate embeddings, and upsert to index
-export async function splitTextAndUpsert(id: string, nombre: string, costo: number, descripcion: string, chunkSize = 1000) {
+export async function splitTextAndUpsert(id: string, nombre: string, descripcion: string, costo: number, chunkSize = 1000) {
     try {
         const text = `${nombre} ${descripcion}`;
         const chunks = text.match(new RegExp(".{1," + chunkSize + "}", "g")) || [];
