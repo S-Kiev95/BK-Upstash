@@ -6,13 +6,13 @@ const router = Router();
 // Route to create and upsert vectors
 router.post('/upsert', async (req, res) => {
     try {
-        const { id, nombre, descripcion, chunkSize } = req.body;
+        const { id, nombre, descripcion, costo, chunkSize } = req.body;
         
-        if (!id || !nombre || !descripcion) {
+        if (!id || !nombre || !descripcion || !costo) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        await splitTextAndUpsert(id, nombre, descripcion, chunkSize);
+        await splitTextAndUpsert(id, nombre, descripcion, costo, chunkSize);
         res.json({ message: 'Vectors created and upserted successfully' });
     } catch (error) {
         console.error('Error in upsert route:', error);

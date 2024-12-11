@@ -12,6 +12,7 @@ const openai = new OpenAI({
 type Metadata = {
     id: string,
     nombre: string,
+    descripcion: string,
     costo: number,
     text: string
 }
@@ -57,6 +58,7 @@ export async function splitTextAndUpsert(id: string, nombre: string, costo: numb
                 metadata: { 
                     id: id,
                     nombre: nombre,
+                    descripcion: descripcion,
                     costo: costo,
                     text: chunks[i] 
                 },
