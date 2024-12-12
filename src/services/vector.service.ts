@@ -66,16 +66,17 @@ export async function splitTextAndUpsert(id: string, nombre: string, descripcion
             
             console.log(`Record upserted with ID: ${chunkId}, Text: ${chunks[i]}`);
         }
+        return true;
     } catch (error) {
         console.error("Error in splitTextAndUpsert:", error);
-        throw error;
+        return false;
     }
 }
 
 // Function to query the index by text and retrieve top K similar items
 export async function queryByText(queryText: string, topK = 1) {
-    const queryEmbedding = await generateEmbeddings(queryText);
     try {
+        const queryEmbedding = await generateEmbeddings(queryText);
         const results = await index.query({
             vector: queryEmbedding,
             topK: topK,
@@ -85,6 +86,6 @@ export async function queryByText(queryText: string, topK = 1) {
         return results;
     } catch (error) {
         console.error("Error querying text:", error);
-        throw error;
+        return false;
     }
 }

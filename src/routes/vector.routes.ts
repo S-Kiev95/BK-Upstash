@@ -9,14 +9,14 @@ router.post('/upsert', async (req, res) => {
         const { id, nombre, descripcion, costo, chunkSize } = req.body;
         
         if (!id || !nombre || !descripcion || !costo) {
-            return res.status(400).json({ error: 'Missing required fields' });
+            return res.status(400).json(false);
         }
 
-        await splitTextAndUpsert(id, nombre, descripcion, costo, chunkSize);
-        res.json({ message: 'Vectors created and upserted successfully' });
+        const result = await splitTextAndUpsert(id, nombre, descripcion, costo, chunkSize);
+        res.json(result);
     } catch (error) {
         console.error('Error in upsert route:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.json(false);
     }
 });
 
@@ -26,14 +26,17 @@ router.post('/query', async (req, res) => {
         const { queryText, topK } = req.body;
         
         if (!queryText) {
-            return res.status(400).json({ error: 'Query text is required' });
+            return res.status(400).json(false);
         }
 
         const results = await queryByText(queryText, topK);
+        if (results === false) {
+            return res.json(false);
+        }
         res.json(results);
     } catch (error) {
         console.error('Error in query route:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.json(false);
     }
 });
 
@@ -43,7 +46,7 @@ router.post('/queryMultiple', async (req, res) => {
         const { productos } = req.body;
         
         if (!Array.isArray(productos)) {
-            return res.status(400).json({ error: 'productos must be an array' });
+            return res.json(false);
         }
 
         const results = [];
@@ -52,12 +55,13 @@ router.post('/queryMultiple', async (req, res) => {
         
         for (const producto of productos) {
             if (!producto.nombreProducto || typeof producto.cantidad !== 'number') {
-                return res.status(400).json({ 
-                    error: 'Each product must have nombreProducto (string) and cantidad (number)' 
-                });
+                return res.json(false);
             }
 
             const queryResult = await queryByText(producto.nombreProducto);
+            if (queryResult === false) {
+                return res.json(false);
+            }
             
             if (queryResult && queryResult.length > 0) {
                 const firstResult = queryResult[0];
@@ -87,7 +91,7 @@ router.post('/queryMultiple', async (req, res) => {
         });
     } catch (error) {
         console.error('Error in queryMultiple route:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.json(false);
     }
 });
 
