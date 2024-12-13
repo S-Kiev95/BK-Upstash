@@ -6,13 +6,13 @@ const router = Router();
 // Route to create and upsert vectors
 router.post('/upsert', async (req, res) => {
     try {
-        const { id, nombre, descripcion, costo, chunkSize } = req.body;
+        const { id, nombre, descripcion, costo, precioBase, chunkSize } = req.body;
         
-        if (!id || !nombre || !descripcion || !costo) {
+        if (!id || !nombre || !descripcion || !costo || !precioBase) {
             return res.status(400).json(false);
         }
 
-        const result = await splitTextAndUpsert(id, nombre, descripcion, costo, chunkSize);
+        const result = await splitTextAndUpsert(id, nombre, descripcion, costo, precioBase, chunkSize);
         res.json(result);
     } catch (error) {
         console.error('Error in upsert route:', error);
@@ -52,6 +52,7 @@ router.post('/queryMultiple', async (req, res) => {
         const results = [];
         const notFound = [];
         let total = 0;
+        let totalGanancia = 0;
         
         for (const producto of productos) {
             if (!producto.nombreProducto || typeof producto.cantidad !== 'number') {
@@ -67,14 +68,18 @@ router.post('/queryMultiple', async (req, res) => {
                 const firstResult = queryResult[0];
                 if (firstResult?.metadata?.costo != null && !isNaN(firstResult.metadata.costo)) {
                     const subtotal = firstResult.metadata.costo * producto.cantidad;
+                    const subTotalGanancia = (firstResult.metadata.costo - firstResult.metadata.precioBase) * producto.cantidad;
                     total += subtotal;
+                    totalGanancia += subTotalGanancia;
                     
                     results.push({
                         id: firstResult.metadata.id,
                         nombre: firstResult.metadata.text,
                         cantidad: producto.cantidad,
                         costo: firstResult.metadata.costo,
-                        subtotal: subtotal
+                        precioBase: firstResult.metadata.precioBase,
+                        subtotal: subtotal,
+                        subTotalGanancia: subTotalGanancia
                     });
                 } else {
                     console.warn(`No valid cost found for product: ${producto.nombreProducto}`);
@@ -87,7 +92,8 @@ router.post('/queryMultiple', async (req, res) => {
         res.json({
             found: results,
             notFound: notFound,
-            total: total
+            total: total,
+            totalGanancia: totalGanancia
         });
     } catch (error) {
         console.error('Error in queryMultiple route:', error);
