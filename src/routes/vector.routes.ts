@@ -15,7 +15,7 @@ router.post('/upsert', async (req, res) => {
         const result = await splitTextAndUpsert(id, nombre, descripcion, costo, precioBase, chunkSize);
         res.json(result);
     } catch (error) {
-        console.error('Error in upsert route:', error);
+        console.error('Error en la ruta de inserción:', error);
         res.json(false);
     }
 });
@@ -35,7 +35,7 @@ router.post('/query', async (req, res) => {
         }
         res.json(results);
     } catch (error) {
-        console.error('Error in query route:', error);
+        console.error('Error en la ruta de consulta:', error);
         res.json(false);
     }
 });
@@ -96,7 +96,7 @@ router.post('/queryMultiple', async (req, res) => {
             totalGanancia: totalGanancia
         });
     } catch (error) {
-        console.error('Error in queryMultiple route:', error);
+        console.error('Error en la ruta de consulta múltiple:', error);
         res.json(false);
     }
 });

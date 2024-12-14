@@ -16,12 +16,12 @@ app.use(express.json());
 // Routes
 app.use('/api/vector', vectorRoutes);
 
-// Health check endpoint
+// Verificación de salud
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+    res.json({ estado: 'ok' });
 });
 
-// Start server
+// Iniciar servidor
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Servidor ejecutándose en el puerto ${port}`);
 });

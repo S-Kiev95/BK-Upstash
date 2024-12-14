@@ -23,7 +23,7 @@ const index = new Index<Metadata>({
     token: process.env.UPSTASH_VECTOR_TOKEN!,
 });
 
-// Function to generate embeddings for a given text
+// Función para generar embeddings para un texto dado
 async function generateEmbeddings(text: string) {
     try {
         const response = await openai.embeddings.create({
@@ -34,16 +34,16 @@ async function generateEmbeddings(text: string) {
         if (response.data && response.data.length > 0 && response.data[0].embedding) {
             return response.data[0].embedding;
         } else {
-            console.error("Unexpected response structure:", JSON.stringify(response, null, 2));
-            throw new Error("Unexpected response structure, embedding not found.");
+            console.error("Estructura de respuesta inesperada:", JSON.stringify(response, null, 2));
+            throw new Error("Estructura de respuesta inesperada, embedding no encontrado.");
         }
     } catch (error) {
-        console.error("Error generating embeddings:", error);
+        console.error("Error generando embeddings:", error);
         throw error;
     }
 }
 
-// Function to split text into chunks, generate embeddings, and upsert to index
+// Función para dividir texto en fragmentos, generar embeddings y actualizar el índice
 export async function splitTextAndUpsert(id: string, nombre: string, descripcion: string, costo: number, precioBase: number, chunkSize = 1000) {
     try {
         const text = `${nombre} ${descripcion}`;
@@ -66,16 +66,16 @@ export async function splitTextAndUpsert(id: string, nombre: string, descripcion
                 },
             }]);
             
-            console.log(`Record upserted with ID: ${chunkId}, Text: ${chunks[i]}`);
+            console.log(`Registro actualizado con ID: ${chunkId}, Texto: ${chunks[i]}`);
         }
         return true;
     } catch (error) {
-        console.error("Error in splitTextAndUpsert:", error);
+        console.error("Error en splitTextAndUpsert:", error);
         return false;
     }
 }
 
-// Function to query the index by text and retrieve top K similar items
+// Función para consultar el índice por texto y recuperar los K elementos más similares
 export async function queryByText(queryText: string, topK = 1) {
     try {
         const queryEmbedding = await generateEmbeddings(queryText);
@@ -84,10 +84,10 @@ export async function queryByText(queryText: string, topK = 1) {
             topK: topK,
             includeMetadata: true,
         });
-        console.log("Result", JSON.stringify(results, null, 2));
+        console.log("Resultado", JSON.stringify(results, null, 2));
         return results;
     } catch (error) {
-        console.error("Error querying text:", error);
+        console.error("Error consultando texto:", error);
         return false;
     }
 }
